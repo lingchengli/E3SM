@@ -766,6 +766,7 @@ subroutine crm_physics_tend(ztodt, state, tend, ptend, pbuf, cam_in, cam_out, &
       crm_input%qccl(1:ncol,1:pver) = state%q(1:ncol,1:pver,ixcldliq)
       crm_input%qiil(1:ncol,1:pver) = state%q(1:ncol,1:pver,ixcldice)
       crm_input%ps(1:ncol) = state%ps(1:ncol)
+      crm_input%ts(1:ncol) = cam_in%ts(1:ncol)
       crm_input%pmid(1:ncol,1:pver) = state%pmid(1:ncol,1:pver)
       crm_input%pint(1:ncol,1:pver+1) = state%pint(1:ncol,1:pver+1)
       crm_input%pdel(1:ncol,1:pver) = state%pdel(1:ncol,1:pver)
@@ -1237,11 +1238,7 @@ subroutine crm_surface_flux_bypass_tend(state, cam_in, ptend)
       g_dp = gravit * state%rpdel(ii,pver)             ! note : rpdel = 1./pdel
       ptend%s(ii,:)   = 0.
       ptend%q(ii,:,1) = 0.
-#ifdef MAML
-      ptend%s(ii,pver)   = g_dp * cam_in%shf(ii,1)
-#else
       ptend%s(ii,pver)   = g_dp * cam_in%shf(ii)
-#endif
       ptend%q(ii,pver,1) = g_dp * cam_in%cflx(ii,1)
    end do
 

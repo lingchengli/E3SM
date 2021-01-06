@@ -573,6 +573,19 @@ subroutine crm(lchnk, ncrms, dt_gl, plev,       &
     crm_output%precstend(icrm)=colprecs(icrm)
   enddo
 
+#if defined ( MMF_CRM_SFC_FLUX )
+  !$acc parallel loop collapse(3) async(asyncid)
+  do j = 1, ny
+    do i = 1, nx
+      do icrm = 1, ncrms
+        fluxbt  (icrm,i,j) = crm_input%fluxt00(icrm)/rhow(icrm,1)
+        fluxbq  (icrm,i,j) = crm_input%fluxq00(icrm)/rhow(icrm,1)
+        sstxy   (icrm,i,j) = crm_input%ts     (icrm)
+      end do ! icrm = 1, ncrms
+    end do ! i = 1,nx
+  end do ! j = 1, ny
+#endif /* MMF_CRM_SFC_FLUX */
+
 !---------------------------------------------------
 #ifdef m2005
   crm_output%nc_mean = 0.
@@ -781,7 +794,7 @@ subroutine crm(lchnk, ncrms, dt_gl, plev,       &
 
       !-----------------------------------------------
       !     surface fluxes:
-      if (dosurface) call crm_surface(ncrms,bflx)
+      !if (dosurface) call crm_surface(ncrms,bflx)
 
       !-----------------------------------------------------------
       !  SGS physics:
