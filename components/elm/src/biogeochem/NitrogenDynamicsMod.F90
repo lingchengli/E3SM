@@ -239,7 +239,7 @@ contains
     ! as a function of soluble mineral N and total soil water outflow.
     !
     ! !USES:
-    use elm_varpar       , only : nlevdecomp, nlevsoi, nlevgrnd
+    use elm_varpar       , only : nlevdecomp, nlevsoi
     use clm_time_manager , only : get_step_size
     !
     ! !ARGUMENTS:
@@ -253,7 +253,6 @@ contains
     !
     ! !LOCAL VARIABLES:
     integer  :: j,c,fc                                 ! indices
-    integer  :: nlevbed				       ! number of layers to bedrock
     real(r8) :: dt                                     ! radiation time step (seconds)
     real(r8) :: sf                                     ! soluble fraction of mineral N (unitless)
     real(r8) :: sf_no3                                 ! soluble fraction of NO3 (unitless)
@@ -265,7 +264,6 @@ contains
     !-----------------------------------------------------------------------
 
     associate(& 
-    	 nlev2bed            => col_pp%nlevbed                            , & ! Input:  [integer (:)    ]  number of layers to bedrock
          h2osoi_liq          => col_ws%h2osoi_liq            , & ! Input:  [real(r8) (:,:) ]  liquid water (kg/m2) (new) (-nlevsno+1:nlevgrnd)
 
          qflx_drain          => col_wf%qflx_drain             , & ! Input:  [real(r8) (:)   ]  sub-surface runoff (mm H2O /s)                    
@@ -291,26 +289,27 @@ contains
 
       ! calculate the total soil water
       tot_water(bounds%begc:bounds%endc) = 0._r8
-      do fc = 1,num_soilc
-         c = filter_soilc(fc)
-         nlevbed = nlev2bed(c)
-         do j = 1,nlevbed
+      do j = 1,nlevsoi
+         do fc = 1,num_soilc
+            c = filter_soilc(fc)
             tot_water(c) = tot_water(c) + h2osoi_liq(c,j)
          end do
       end do
 
       ! for runoff calculation; calculate total water to a given depth
       surface_water(bounds%begc:bounds%endc) = 0._r8
-      do fc = 1,num_soilc
-         c = filter_soilc(fc)
-         nlevbed = nlev2bed(c)
-         do j = 1,nlevbed
-            if ( zisoi(j) <= depth_runoff_Nloss)  then
+      do j = 1,nlevsoi
+         if ( zisoi(j) <= depth_runoff_Nloss)  then
+            do fc = 1,num_soilc
+               c = filter_soilc(fc)
                surface_water(c) = surface_water(c) + h2osoi_liq(c,j)
-            elseif ( zisoi(j-1) < depth_runoff_Nloss)  then
+            end do
+         elseif ( zisoi(j-1) < depth_runoff_Nloss)  then
+            do fc = 1,num_soilc
+               c = filter_soilc(fc)
                surface_water(c) = surface_water(c) + h2osoi_liq(c,j) * ( (depth_runoff_Nloss - zisoi(j-1)) / col_pp%dz(c,j))
-            end if
-         end do
+            end do
+         endif
       end do
 
       ! Loop through columns
