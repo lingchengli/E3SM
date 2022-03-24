@@ -942,8 +942,7 @@ MODULE MOSART_physics_mod
                      if( TUnit%ocn_rof_coupling_ID(iunit) .ne. 1 .and. TRunoff%erin_dstrm(iunit,nt)*theDeltaT + TRunoff%wr_dstrm(iunit,nt)/rtmCTL%nUp_dstrm(iunit) <= TINYVALUE) then! much negative inflow from upstream,
                          TRunoff%vr(iunit,nt) = 0._r8
                          TRunoff%erout(iunit,nt) = 0._r8
-                     elseif( TUnit%ocn_rof_coupling_ID(iunit) .ne. 1 .and. TRunoff%erout(iunit,nt) >= TINYVALUE .and. TRunoff%wr_dstrm(iunit,nt)/rtmCTL%nUp_dstrm(iunit)- TRunoff%erout(iunit,nt) *
-theDeltaT < TINYVALUE) then
+                     elseif( TUnit%ocn_rof_coupling_ID(iunit) .ne. 1 .and. TRunoff%erout(iunit,nt) >= TINYVALUE .and. TRunoff%wr_dstrm(iunit,nt)/rtmCTL%nUp_dstrm(iunit)- TRunoff%erout(iunit,nt) * theDeltaT < TINYVALUE) then
                          TRunoff%erout(iunit,nt) = TRunoff%wr_dstrm(iunit,nt)*0.95_r8 / theDeltaT / rtmCTL%nUp_dstrm(iunit)
                          if(TRunoff%mr(iunit,nt) > TINYVALUE) then
                             TRunoff%vr(iunit,nt) = -TRunoff%erout(iunit,nt) / TRunoff%mr(iunit,nt)
